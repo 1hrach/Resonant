@@ -45,7 +45,7 @@ Deploy from a branch**, pick `main` and `/ (root)`, save. After a minute
 you'll have:
 
 ```
-https://<your-username>.github.io/resonant/
+https://1hrach.github.io/Resonant/
 ```
 
 (Any HTTPS host works. It must be HTTPS — the service worker and audio APIs
