@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0d0d10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Resonant">
+<title>Resonant</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== SIDEBAR (desktop) ===================== -->
+  <nav id="sidebar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" class="brand-mark" aria-hidden="true">
+        <rect x="2"  y="9"  width="3" height="6"  rx="1.5"/>
+        <rect x="7"  y="5"  width="3" height="14" rx="1.5"/>
+        <rect x="12" y="2"  width="3" height="20" rx="1.5"/>
+        <rect x="17" y="7"  width="3" height="10" rx="1.5"/>
+      </svg>
+      <span>Resonant</span>
+    </div>
+    <a class="nav-item" data-route="home"><span class="ni">home</span>Home</a>
+    <a class="nav-item" data-route="search"><span class="ni">search</span>Search</a>
+    <a class="nav-item" data-route="library"><span class="ni">library</span>Library</a>
+    <div class="nav-sep"></div>
+    <a class="nav-item" data-route="liked"><span class="ni">heart</span>Liked</a>
+    <a class="nav-item" data-route="history"><span class="ni">clock</span>History</a>
+    <a class="nav-item" data-route="settings"><span class="ni">gear</span>Settings</a>
+    <div class="nav-sep"></div>
+    <button class="nav-action" id="newPlaylistBtn">+ New playlist</button>
+    <div id="sidebarPlaylists" class="side-playlists"></div>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <main id="main">
+    <header id="topbar">
+      <button class="icon-btn" id="backBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h1 id="viewTitle">Home</h1>
+      <button class="icon-btn" id="topSettings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M3 7h9M17 7h4M3 17h4M12 17h9"/><path d="M14.5 4.5v5M9.5 14.5v5"/>
+        </svg>
+      </button>
+    </header>
+    <div id="view"></div>
+  </main>
+
+  <!-- ===================== NOW PLAYING (expanded sheet) ===================== -->
+  <section id="nowPlaying" aria-hidden="true">
+    <div class="np-grip"><button class="icon-btn" id="npCollapse" aria-label="Minimise">
+      <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button><span id="npContext">Now playing</span><button class="icon-btn" id="npQueueBtn" aria-label="Queue">
+      <svg viewBox="0 0 24 24"><path d="M4 6h11M4 12h11M4 18h7M17 13v6M17 13l4 2-4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button></div>
+
+    <div class="np-stage">
+      <!-- YouTube iframe lives here; visible per YouTube's embed terms -->
+      <div id="ytStage"><div id="ytPlayer"></div></div>
+      <div id="artStage"><img id="npArt" alt=""><div id="npArtFallback"></div></div>
+    </div>
+
+    <div class="np-meta">
+      <div class="np-titles">
+        <div id="npTitle">Nothing playing</div>
+        <div id="npArtist">Pick something to listen to</div>
+      </div>
+      <button class="icon-btn like-btn" id="npLike" aria-label="Like"></button>
+    </div>
+
+    <div class="np-scrub">
+      <input type="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Seek">
+      <div class="np-times"><span id="curTime">0:00</span><span id="durTime">0:00</span></div>
+    </div>
+
+    <div class="np-controls">
+      <button class="icon-btn" id="shuffleBtn" aria-label="Shuffle">
+        <svg viewBox="0 0 24 24"><path d="M16 4l3 3-3 3M16 14l3 3-3 3M4 7h4l8 10h3M4 17h4l2.5-3M14.5 10L16 7h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn lg" id="prevBtn" aria-label="Previous">
+        <svg viewBox="0 0 24 24"><path d="M18 5v14L8 12zM6 5v14" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="playBtn" aria-label="Play"></button>
+      <button class="icon-btn lg" id="nextBtn" aria-label="Next">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14l10-7zM18 5v14" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn" id="repeatBtn" aria-label="Repeat">
+        <svg viewBox="0 0 24 24"><path d="M17 2l3 3-3 3M7 22l-3-3 3-3M20 5H9a5 5 0 00-5 5v1M4 19h11a5 5 0 005-5v-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="repeat-one">1</span>
+      </button>
+    </div>
+
+    <div class="np-extras">
+      <label class="extra"><span>Speed</span>
+        <select id="rateSel">
+          <option value="0.75">0.75×</option><option value="1" selected>1×</option>
+          <option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+        </select>
+      </label>
+      <label class="extra"><span>Sleep</span>
+        <select id="sleepSel">
+          <option value="0">Off</option><option value="300">5 min</option><option value="900">15 min</option>
+          <option value="1800">30 min</option><option value="3600">1 hour</option><option value="end">End of track</option>
+        </select>
+      </label>
+      <label class="extra vol"><span>Volume</span>
+        <input type="range" id="volume" min="0" max="100" value="100" aria-label="Volume">
+      </label>
+    </div>
+    <div id="npWarn" class="np-warn" hidden></div>
+  </section>
+
+  <!-- ===================== QUEUE SHEET ===================== -->
+  <section id="queueSheet" aria-hidden="true">
+    <div class="np-grip">
+      <button class="icon-btn" id="queueClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button><span>Queue</span>
+      <button class="text-btn" id="queueClear">Clear</button>
+    </div>
+    <div id="queueList"></div>
+  </section>
+
+  <!-- ===================== MINI PLAYER ===================== -->
+  <div id="miniPlayer" hidden>
+    <div class="mini-prog"><div id="miniProgFill"></div></div>
+    <div class="mini-inner">
+      <img id="miniArt" alt="">
+      <div class="mini-titles"><div id="miniTitle"></div><div id="miniArtist"></div></div>
+      <button class="icon-btn" id="miniPrev" aria-label="Previous">
+        <svg viewBox="0 0 24 24"><path d="M18 5v14L8 12zM6 5v14" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn" id="miniPlay" aria-label="Play"></button>
+      <button class="icon-btn" id="miniNext" aria-label="Next">
+        <svg viewBox="0 0 24 24"><path d="M6 5v14l10-7zM18 5v14" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== TAB BAR (mobile) ===================== -->
+  <nav id="tabbar">
+    <a class="tab" data-route="home"><span class="ni">home</span>Home</a>
+    <a class="tab" data-route="search"><span class="ni">search</span>Search</a>
+    <a class="tab" data-route="library"><span class="ni">library</span>Library</a>
+    <a class="tab" data-route="liked"><span class="ni">heart</span>Liked</a>
+  </nav>
+
+</div>
+
+<!-- hidden audio element for local files -->
+<audio id="localAudio" preload="metadata"></audio>
+
+<!-- modal host -->
+<div id="modalHost" hidden></div>
+<div id="toast" hidden></div>
+
+<input type="file" id="fileInput" accept="audio/*" multiple hidden>
+
+<script src="app.js"></script>
+</body>
+</html>
